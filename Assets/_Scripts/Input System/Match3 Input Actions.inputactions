@@ -1,0 +1,54 @@
+{
+    "name": "Match3 Input Actions",
+    "maps": [
+        {
+            "name": "Match3",
+            "id": "d0b9e24f-ffd3-44e4-93b3-70a73328eeb5",
+            "actions": [
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "a4a2eeba-fe84-4301-8bbc-ee90f5555d58",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "MousePosition",
+                    "type": "Value",
+                    "id": "496c4907-1645-4bf1-9cb0-d04e7401e398",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "3f47e657-4822-43a9-b0cd-c3b00c434488",
+                    "path": "<Pointer>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2ac33a26-587f-4125-b61a-e5df85a4f872",
+                    "path": "<Pointer>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MousePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
