@@ -1,4 +1,6 @@
 
+using UnityEngine;
+
 public class GameStateMachine : BaseStateMachine
 {
     public IState Playing;
@@ -6,6 +8,7 @@ public class GameStateMachine : BaseStateMachine
 
     public override void ChangeState(IState newState)
     {
+        Debug.Log($"GameState: {newState.ToString()}");
         base.ChangeState(newState);
     }
 

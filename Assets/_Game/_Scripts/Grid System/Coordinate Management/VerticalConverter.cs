@@ -16,6 +16,13 @@ namespace Match3
             return new Vector3((x + 0.5f) * cellSize, (y + 0.5f) * cellSize, 0) + origin;
         }
 
+        public override Vector3 GridToWorldAboveScreen(int x, float cellSize, Vector3 origin)
+        {
+            var screenTop = new Vector3(0, Screen.height, Camera.main.farClipPlane);
+            var screenToWorldTop = Camera.main.ScreenToWorldPoint(screenTop);
+            return new Vector3((x + 0.5f) * cellSize, (screenToWorldTop.y + .5f) * cellSize, 0) + origin;
+        }
+
         public override Vector2Int WorldToGrid(Vector3 worldPosition, float cellSize, Vector3 origin)
         {
             Vector3 gridPos = (worldPosition - origin) / cellSize;

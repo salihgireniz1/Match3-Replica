@@ -5,35 +5,18 @@ namespace Match3
 {
     public class LinearTripleChain : ChainBase
     {
-        public override List<GridObject<BaseGem>> Chain => chain;
+        public override List<GridObject<BaseGem>> Chain { get; } = new();
 
-        public override int Priority { get; protected set; }
+        public override int Priority { get; protected set; } = 0;
 
-        private List<GridObject<BaseGem>> chain = new();
-
-        public LinearTripleChain(GridSystem<GridObject<BaseGem>> gridSystem, int priority = 10) : base(gridSystem, priority) { }
+        public LinearTripleChain(GridSystem<GridObject<BaseGem>> gridSystem, int priority = 0) : base(gridSystem, priority) { }
 
         public override bool HasChain(GridObject<BaseGem> gridObject)
         {
-            chain.Clear();
-            return HasTripleMatch(gridObject, Vector2Int.right) || HasTripleMatch(gridObject, Vector2Int.up);
+            Chain?.Clear();
+            return HasLinearChain(gridObject, Vector2Int.right, 3) || HasLinearChain(gridObject, Vector2Int.up, 3);
         }
 
-        private bool HasTripleMatch(GridObject<BaseGem> gridObject, Vector2Int direction)
-        {
-            List<GridObject<BaseGem>> currentChain = new List<GridObject<BaseGem>> { gridObject };
-            var forwardChain = FindLinearChain(gridObject, direction, 3);
-            var backwardChain = FindLinearChain(gridObject, -direction, 3);
 
-            currentChain.AddRange(forwardChain);
-            currentChain.AddRange(backwardChain);
-
-            if (currentChain.Count >= 3)
-            {
-                chain.AddRange(currentChain);
-                return true;
-            }
-            return false;
-        }
     }
 }

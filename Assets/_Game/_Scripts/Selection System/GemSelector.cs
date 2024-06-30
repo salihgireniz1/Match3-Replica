@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 
@@ -17,13 +18,21 @@ namespace Match3
         GridSystem<GridObject<BaseGem>> grid;
 
         /// <summary>
+        /// Injected instance of SelectionProvider.
+        /// </summary>
+        [Inject]
+        SelectionProvider selectionProvider;
+
+        /// <summary>
         /// The input reader to get mouse input.
         /// </summary>
+        [Inject]
         InputReader inputReader;
 
         /// <summary>
         /// The game state machine to check the current game state.
         /// </summary>
+        [Inject]
         GameStateMachine gameStateMachine;
 
         /// <summary>
@@ -51,37 +60,25 @@ namespace Match3
         /// <summary>
         /// Event that is invoked when two gems are selected to be swapped.
         /// </summary>
-        public event Action<GridObject<BaseGem>, GridObject<BaseGem>> OnGemsSelected;
-        #endregion
-
-        #region Constructors
-        /// <summary>
-        /// Constructor that injects necessary dependencies.
-        /// </summary>
-        [Inject]
-        void Construct(InputReader inputReader, GameStateMachine gameStateMachine)
-        {
-            this.gameStateMachine = gameStateMachine;
-            this.inputReader = inputReader;
-        }
+        public event Func<GridObject<BaseGem>, GridObject<BaseGem>, UniTask> OnGemsSelected;
         #endregion
 
         #region MonoBehaviour Callbacks
         private void OnEnable()
         {
             inputReader.OnClick += SelectGem;
-            inputReader.OnRelease += DeselectGem;
+            inputReader.OnRelease += HandleDeselectGem;
         }
-
-        private void LateUpdate()
+        private void Update()
         {
             if (CanSelectSwitchObject)
             {
                 var obj = GetGemAtMousePosition();
                 if (SelectionIsValid(obj))
                 {
+                    gameStateMachine.ChangeState(gameStateMachine.OnHold);
                     objectToSwitch = obj;
-                    DeselectGem();
+                    DeselectGem().Forget();
                 }
             }
         }
@@ -89,11 +86,17 @@ namespace Match3
         private void OnDisable()
         {
             inputReader.OnClick -= SelectGem;
-            inputReader.OnRelease -= DeselectGem;
+            inputReader.OnRelease -= HandleDeselectGem;
         }
         #endregion
 
         #region Methods
+        // Synchronous method to handle the event
+        private void HandleDeselectGem()
+        {
+            if (CanSelectSwitchObject) DeselectGem().Forget();
+        }
+
         /// <summary>
         /// Gets the gem at the mouse position.
         /// </summary>
@@ -114,10 +117,12 @@ namespace Match3
         /// <summary>
         /// Deselects the currently selected gem and gem to switch with.
         /// </summary>
-        private void DeselectGem()
+        private async UniTaskVoid DeselectGem()
         {
-            OnGemsSelected?.Invoke(selectedObject, objectToSwitch);
-
+            if (OnGemsSelected != null)
+            {
+                await OnGemsSelected.Invoke(selectedObject, objectToSwitch);
+            }
             selectedObject = null;
             objectToSwitch = null;
         }

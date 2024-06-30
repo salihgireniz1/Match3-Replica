@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using ModestTree;
 using TMPro;
 using UnityEngine;
 
@@ -41,6 +40,7 @@ namespace Match3
 
             if (debug) DrawDebugLines();
         }
+
         public void SetValue(int x, int y, T value)
         {
             if (IsValid(x, y))
@@ -52,6 +52,26 @@ namespace Match3
         public T GetValue(int x, int y)
         {
             return IsValid(x, y) ? gridArray[x, y] : default;
+        }
+        public T[] GetColumnValues(int x)
+        {
+            if (!IsValid(x, 0)) return default;
+            T[] values = new T[height];
+            for (int i = 0; i < height; i++)
+            {
+                values[i] = GetValue(x, i);
+            }
+            return values;
+        }
+        public T[] GetRowValues(int y)
+        {
+            if (!IsValid(0, y)) return default;
+            T[] values = new T[width];
+            for (int i = 0; i < width; i++)
+            {
+                values[i] = GetValue(i, y);
+            }
+            return values;
         }
         public bool IsValid(int x, int y) => x >= 0 && y >= 0 && x < width && y < height;
         public Vector2Int GetXY(T gridObject)
@@ -84,6 +104,7 @@ namespace Match3
         }
         public Vector2Int GetXY(Vector3 worldPosition) => coordinateConverter.WorldToGrid(worldPosition, cellSize, origin);
         public Vector3 GetWorldPositionCenter(int x, int y) => coordinateConverter.GridToWorldCenter(x, y, cellSize, origin);
+        public Vector3 GetWorldPositionAboveScreen(int x) => coordinateConverter.GridToWorldAboveScreen(x, cellSize, origin);
         Vector3 GetWorldPosition(int x, int y) => coordinateConverter.GridToWorld(x, y, cellSize, origin);
         void DrawDebugLines()
         {

@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79046826f87891f43853e85b5d8a0ae5, type: 3}
-  m_Name: Switch Anim Data
-  m_EditorClassIdentifier: 
-  <Duration>k__BackingField: 0.25
-  <Ease>k__BackingField: 1
+  m_Script: {fileID: 0}
+  m_Name: Fall Anim Data
+  m_EditorClassIdentifier: Assembly-CSharp:Match3:FallAnimationData
+  <Duration>k__BackingField: 0.6
+  <Ease>k__BackingField: 20

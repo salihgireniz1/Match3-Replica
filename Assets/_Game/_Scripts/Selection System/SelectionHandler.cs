@@ -1,29 +1,28 @@
 using Zenject;
-using DG.Tweening;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using System.Collections.Generic;
-using System;
-using System.Linq;
 
 namespace Match3
 {
+    /// <summary>
+    /// Handles the logic for gem selections and processes the selected gems.
+    /// </summary>
     public class SelectionHandler : MonoBehaviour
     {
         /// <summary>
-        /// The grid system that manages the game board.
+        /// Injected instance of GemSelector.
         /// </summary>
-        [Inject]
-        GridSystem<GridObject<BaseGem>> grid;
-
-        [Inject]
-        SwitchAnimationData animationData;
-
         [Inject]
         GemSelector selector;
 
-        [Inject, SerializeField]
+        /// <summary>
+        /// Injected instance of SelectionProvider.
+        /// </summary>
+        [Inject]
         SelectionProvider selectionProvider;
+
+        [Inject]
+        GameStateMachine gameStateMachine;
 
         private void OnEnable()
         {
@@ -33,82 +32,47 @@ namespace Match3
         {
             selector.OnGemsSelected -= HandleSelections;
         }
-        public async void HandleSelections(GridObject<BaseGem> selected, GridObject<BaseGem> switchable)
+        /// <summary>
+        /// Processes the selected gems and performs the necessary actions.
+        /// </summary>
+        /// <param name="selected">The selected gems.</param>
+        /// <param name="switchable">The switchable gems.</param>
+        /// <returns>An async Task representing the asynchronous processing of the selected gems.</returns>
+        public async UniTask HandleSelections(GridObject<BaseGem> selected, GridObject<BaseGem> switchable)
         {
-            // This is the case we will just manage default functionality
-            // of selected gem. For example, if selected gem is a bomb,
-            // we will just explode it and manage the rest, like deleting
-            // near gems etc.
-            if (selected != null && switchable == null)
+            Selection selectionProcess = selectionProvider.GetValidSelectionProcess(selected, switchable);
+            if (selectionProcess != null)
             {
-
-            }
-            // This is the case we will switch two gems.
-            else if (selected != null && switchable != null)
-            {
-                SelectionProcess selectionProcess = selectionProvider.GetValidSelectionProcess(selected, switchable);
-                if (selectionProcess != null)
-                {
-                    await selectionProcess.Process(selected, switchable);
-                }
-                // selectionProcess.Process(selected, switchable);
-                // await SwitchGridObjects(selected, switchable);
-
-                // Update GridObjects' gem values
-                // BaseGem selectedGem = selected.GetValue();
-                // BaseGem switchableGem = switchable.GetValue();
-                // selected.SetValue(switchableGem);
-                // switchable.SetValue(selectedGem);
+                await selectionProcess.Process(selected, switchable);
             }
 
+            gameStateMachine.ChangeState(gameStateMachine.Playing);
         }
-        List<GridObject<BaseGem>> GetChain(GridObject<BaseGem> gridObject)
-        {
-            List<GridObject<BaseGem>> visited = new List<GridObject<BaseGem>>();
-            return GetChainableNeighbors(gridObject, visited);
-        }
-        List<GridObject<BaseGem>> GetChainableNeighbors(GridObject<BaseGem> gridObject, List<GridObject<BaseGem>> visited)
-        {
-            List<GridObject<BaseGem>> objectSpecificChain = new();
+        // List<GridObject<BaseGem>> GetChain(GridObject<BaseGem> gridObject)
+        // {
+        //     List<GridObject<BaseGem>> visited = new List<GridObject<BaseGem>>();
+        //     return GetChainableNeighbors(gridObject, visited);
+        // }
+        // List<GridObject<BaseGem>> GetChainableNeighbors(GridObject<BaseGem> gridObject, List<GridObject<BaseGem>> visited)
+        // {
+        //     List<GridObject<BaseGem>> objectSpecificChain = new();
 
-            if (visited.Contains(gridObject))
-            {
-                return objectSpecificChain; // Return an empty list if already visited
-            }
-            visited.Add(gridObject); // Mark the current gridObject as visited
-            var gemNeighbors = grid.GetNeighbors2D(gridObject);
-            foreach (GridObject<BaseGem> neighbor in gemNeighbors)
-            {
-                if (gridObject.GetValue().GemType == neighbor.GetValue().GemType)
-                {
-                    var neighborChain = GetChainableNeighbors(neighbor, visited);
-                    objectSpecificChain.AddRange(neighborChain);
-                }
-            }
-            objectSpecificChain.Add(gridObject);
-            return objectSpecificChain;
-        }
+        //     if (visited.Contains(gridObject))
+        //     {
+        //         return objectSpecificChain; // Return an empty list if already visited
+        //     }
+        //     visited.Add(gridObject); // Mark the current gridObject as visited
+        //     var gemNeighbors = grid.GetNeighbors2D(gridObject);
+        //     foreach (GridObject<BaseGem> neighbor in gemNeighbors)
+        //     {
+        //         if (gridObject.GetValue().GemType == neighbor.GetValue().GemType)
+        //         {
+        //             var neighborChain = GetChainableNeighbors(neighbor, visited);
+        //             objectSpecificChain.AddRange(neighborChain);
+        //         }
+        //     }
+        //     objectSpecificChain.Add(gridObject);
+        //     return objectSpecificChain;
+        // }
     }
-
-    [Serializable]
-    public class SelectionProvider
-    {
-        public List<SelectionProcess> SelectionProcesses => selectionProcesses;
-
-        [SerializeField]
-        List<SelectionProcess> selectionProcesses = new();
-
-
-        // Initialize all selection type classes.
-        public SelectionProvider(SimpleToSimpleSelection simp2simp)
-        {
-            selectionProcesses.Add(simp2simp);
-        }
-
-        public SelectionProcess GetValidSelectionProcess(GridObject<BaseGem> gridObject1, GridObject<BaseGem> gridObject2)
-        {
-            return selectionProcesses.First(x => x.IsValid(gridObject1.GetValue(), gridObject2.GetValue()));
-        }
-    }
-
 }

@@ -16,8 +16,8 @@ namespace Match3
         public override BaseGem GetRandomGem()
         {
             int rnd = UnityEngine.Random.Range(0, GemPrefabs.Length);
-            // var gem = MonoBehaviour.Instantiate(GemPrefabs[rnd]);
-            return GemPrefabs[rnd];
+            var gem = Object.Instantiate(GemPrefabs[rnd]);
+            return gem;
         }
 
         public override void ReturnGem(BaseGem item)

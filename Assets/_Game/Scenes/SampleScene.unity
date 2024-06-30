@@ -432,7 +432,7 @@ MonoBehaviour:
   gridData: {fileID: 11400000, guid: b27d8c78ed098244f8e410c7457027aa, type: 2}
   gemData: {fileID: 11400000, guid: 25eccaa4d0a9f0f428d75eb809752f9f, type: 2}
   switchAnimationData: {fileID: 11400000, guid: ea2c0f717215a2c418b8e1ad04bcfa95, type: 2}
-  selectionTypeData: {fileID: 11400000, guid: f448c340094d9c54eb0ec08c56475639, type: 2}
+  fallAnimationData: {fileID: 11400000, guid: 2fee4e59341c06141b95b7d35a3a8aa1, type: 2}
 --- !u!114 &1674559062
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -13,24 +13,70 @@ namespace Match3
 
         [SerializeField]
         SwitchAnimationData switchAnimationData;
+
+        [SerializeField]
+        FallAnimationData fallAnimationData;
         public override void InstallBindings()
         {
-            Container.Bind<GridSystem<GridObject<BaseGem>>>()
-                .FromMethod(x => GridSystem<GridObject<BaseGem>>.CreateVerticalInstance(gridData))
-                .AsSingle().NonLazy();
-            Container.Bind<GameStateMachine>().FromComponentInHierarchy().AsSingle().NonLazy();
-            Container.Bind<GemProvider<BaseGem>>().To<InstantiateGem>().AsSingle().NonLazy();
-            Container.Bind<InputReader>().FromComponentInHierarchy().AsSingle().NonLazy();
-            Container.Bind<GemSelector>().FromComponentInHierarchy().AsSingle();
+            // Selection Handlers...
+            BindSelectionProcessResponsibles();
+            // MonoBehaviours...
+            BindMonoBehaviourClasses();
+            // Chain Seeking Processes...
+            BindChainSeekingProcess();
+            // Selection Processes...
+            BindSelectionProcesses();
+            // Generate Grid...
+            BindGridResponsibles();
+            // Data Instances...
+            BindDataInstances();
+        }
+
+        void BindSelectionProcessResponsibles()
+        {
             Container.Bind<SelectionProvider>().AsSingle().NonLazy();
-            Container.Bind<InGridMovement>().AsSingle().NonLazy();
-            Container.Bind<GridGenerator>().AsSingle().NonLazy();
-            Container.BindInstance(switchAnimationData);
+            Container.Bind<IGridMovement>().To<AnimatedMover>().AsSingle().NonLazy();
+        }
+        void BindGridResponsibles()
+        {
+            Container.Bind<IGemControls>().To<AnimatedGemController>().AsSingle();
+
+            Container.Bind<IGridControls>().To<InstantiateGridWithoutAnimation>().AsSingle();
+
+            // Gem provider(i.e., pooling, instantiating etc.)
+            Container.Bind<GemProvider<BaseGem>>().To<InstantiateGem>().AsSingle().NonLazy();
+
+            // A vertical grid base.
+            Container.Bind<GridSystem<GridObject<BaseGem>>>()
+                            .FromMethod(x => GridSystem<GridObject<BaseGem>>.CreateVerticalInstance(gridData))
+                            .AsSingle().NonLazy();
+        }
+        void BindSelectionProcesses()
+        {
+            Container.Bind<Selection>().To<SingleSelection>().AsSingle().NonLazy();
+            Container.Bind<Selection>().To<SimpleToSimpleSelection>().AsSingle().NonLazy();
+            // TODO : Add other type of selections like simple to bomb etc.
+        }
+        void BindDataInstances()
+        {
             Container.BindInstance(gridData);
             Container.BindInstance(gemData);
+            Container.BindInstance(fallAnimationData).NonLazy();
+            Container.BindInstance(switchAnimationData).NonLazy();
+        }
+        void BindMonoBehaviourClasses()
+        {
+            Container.Bind<GameStateMachine>().FromComponentInHierarchy().AsSingle();
+            Container.Bind<InputReader>().FromComponentInHierarchy().AsSingle().NonLazy();
+            Container.Bind<GemSelector>().FromComponentInHierarchy().AsSingle();
+        }
+        void BindChainSeekingProcess()
+        {
+            Container.Bind<ChainProvider>().AsSingle().NonLazy();
 
-            // Selection Processes
-            Container.Bind<SimpleToSimpleSelection>().AsSingle().NonLazy();
+            Container.Bind<ChainBase>().To<LinearPentaChain>().AsTransient().NonLazy();
+            Container.Bind<ChainBase>().To<LinearTripleChain>().AsTransient().NonLazy();
+            // TODO: Add other type of chain seekers.
         }
     }
 }

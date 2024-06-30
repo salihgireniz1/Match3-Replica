@@ -7,12 +7,8 @@ namespace Match3
     {
         [SerializeField] private Match3Data gridData;
 
-        GridGenerator gridGenerator;
-        [Inject]
-        void Construct(GridGenerator gridGenerator)
-        {
-            this.gridGenerator = gridGenerator;
-        }
+        [Inject] IGridControls gridGenerator;
+
         private void Start()
         {
             // Create a grid.
