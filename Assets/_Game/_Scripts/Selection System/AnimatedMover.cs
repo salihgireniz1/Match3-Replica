@@ -3,6 +3,7 @@ using DG.Tweening;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 
 namespace Match3
 {
@@ -22,10 +23,10 @@ namespace Match3
             return gemToMove.GetValue().transform.DOMove(movePos, switchData.Duration).SetEase(switchData.Ease).ToUniTask();
         }
 
-        public async UniTask FallGemMovement(BaseGem gem, Vector3 newPosition)
+        public async UniTask FallGemMovement(BaseGem gem, Vector3 newPosition, CancellationTokenSource cts)
         {
             var fallDistance = Vector3.Distance(gem.transform.position, newPosition);
-            await gem.transform.DOMoveY(newPosition.y, fallData.Duration * fallDistance).SetEase(fallData.Ease).ToUniTask();
+            await gem.transform.DOMoveY(newPosition.y, fallData.Duration * fallDistance).SetEase(fallData.Ease).ToUniTask().AttachExternalCancellation(cts.Token);
         }
         public void PositionDirectly(BaseGem gem, Vector3 newPosition)
         {
@@ -35,7 +36,7 @@ namespace Match3
     public interface IGridMovement
     {
         UniTask SwipedGemMovement(GridObject<BaseGem> gemToMove, Vector3 movePos);
-        UniTask FallGemMovement(BaseGem gem, Vector3 newPosition);
+        UniTask FallGemMovement(BaseGem gem, Vector3 newPosition, CancellationTokenSource cts);
         void PositionDirectly(BaseGem gem, Vector3 newPosition);
     }
 }

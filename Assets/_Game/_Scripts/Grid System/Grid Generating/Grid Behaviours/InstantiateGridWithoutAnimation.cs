@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
@@ -14,6 +15,7 @@ namespace Match3
         [Inject] private IGemControls gemController;
         [Inject] private Match3Data match3Data;
         [Inject] private IGridMovement gemMovement;
+        [Inject] private ChainProvider chainProvider;
         [Inject] public GridSystem<GridObject<BaseGem>> Grid { get; private set; }
 
         public void ClearGridObject(GridObject<BaseGem> gridObject)
@@ -62,6 +64,47 @@ namespace Match3
                 ClearGridObject(gridObject);
             }
         }
+        public List<BaseGem> CreateGemForNullGridObject(List<GridObject<BaseGem>> nullGridObjects)
+        {
+            Dictionary<int, int> objectXCountPairs = new Dictionary<int, int>();
+            List<BaseGem> newGems = new();
+            foreach (GridObject<BaseGem> nullGridObject in nullGridObjects)
+            {
+                var indices = Grid.GetXY(nullGridObject);
+                if (!objectXCountPairs.ContainsKey(indices.x)) objectXCountPairs[indices.x] = 0;
+                BaseGem newGem = gemProvider.GetRandomGem();
+                newGems.Add(newGem);
+                Vector3 gemPos = Vector3.up * objectXCountPairs[indices.x] + Grid.GetWorldPositionAboveScreen(indices.x);
+                gemMovement.PositionDirectly(newGem, gemPos);
+                for (int y = 0; y < Width; y++)
+                {
+                    var gridObject = Grid.GetValue(indices.x, y);
+                    if (gridObject.GetValue() == null)
+                    {
+                        gridObject.SetValue(newGem);
+                        gemController.AssignGemToGrid(newGem, gridObject);
+                        break;
+                    }
+                }
+                objectXCountPairs[indices.x]++;
+            }
+            return newGems;
+        }
+        public void InsertToAnimationQueue(Dictionary<BaseGem, int> objectDelayPair, List<BaseGem> newGridObjects)
+        {
+            foreach (BaseGem newObject in newGridObjects)
+            {
+                int fallingObjectBelowCount = 0;
+                foreach (var pair in objectDelayPair)
+                {
+                    if (pair.Key.transform.position.x == newObject.transform.position.x)
+                    {
+                        fallingObjectBelowCount++;
+                    }
+                }
+                objectDelayPair.Add(newObject, fallingObjectBelowCount);
+            }
+        }
 
         public void FallReassignment(GridObject<BaseGem> gridObject, int fallCount)
         {
@@ -73,9 +116,11 @@ namespace Match3
             gridObject.SetValue(null);
             gemController.AssignGemToGrid(content, gridObjectToAssingInto);
         }
-
+        CancellationTokenSource cts;
         public UniTask AlignGridContents(Dictionary<BaseGem, int> objectDelayPair)
         {
+            cts?.Cancel();
+            cts = new();
             List<UniTask> result = new List<UniTask>();
             for (int x = 0; x < Width; x++)
             {
@@ -84,23 +129,27 @@ namespace Match3
                     var gridObject = Grid.GetValue(x, y);
                     var gem = gridObject.GetValue();
                     if (gem == null) continue;
+                    if (!objectDelayPair.ContainsKey(gem)) continue;
 
                     var gemFeltFrom = Grid.GetXY(gem.transform.position);
                     var feltDistance = gemFeltFrom.y - y;
                     if (feltDistance <= 0) continue;
-                    if (!objectDelayPair.ContainsKey(gem)) continue;
                     int delay = objectDelayPair[gem];
-                    var task = FallAnimation(gem, Grid.GetWorldPositionCenter(x, y), delay);
+                    var task = FallAnimation(gem, Grid.GetWorldPositionCenter(x, y), delay, cts);
                     result.Add(task);
                 }
             }
-            return UniTask.WhenAll(result);
+            return UniTask.WhenAll(result).AttachExternalCancellation(cts.Token);
         }
 
-        public async UniTask FallAnimation(BaseGem gem, Vector3 newPos, int delayTime)
+        public async UniTask FallAnimation(BaseGem gem, Vector3 newPos, int delayTime, CancellationTokenSource cts)
         {
             await UniTask.Delay(TimeSpan.FromSeconds(delayTime * 0.05f));
-            await gemMovement.FallGemMovement(gem, newPos);
+            await gemMovement.FallGemMovement(gem, newPos, cts);
+            var gridIndicesFeltOn = Grid.GetXY(newPos);
+            var gridFeltOn = Grid.GetValue(gridIndicesFeltOn.x, gridIndicesFeltOn.y);
+            var validChain = chainProvider.GetValidChain(gridFeltOn);
+            if (validChain != null) await validChain.ManageChain(this);
         }
 
         public Dictionary<GridObject<BaseGem>, int> GetObjectFallPair(List<GridObject<BaseGem>> blankGridObjects)

@@ -26,6 +26,7 @@ namespace Match3
             {
                 // Debug.Log($"<----- Destroying {touchedObject?.GetValue().name}'s chain ----->");
                 destroyedGridObjects.AddRange(touchedGemChain.Chain);
+                _ = touchedGemChain.ManageChain(gridController);
             }
 
             ChainBase finalGemChain = ChainProvider.GetValidChain(finalObject);
@@ -33,18 +34,22 @@ namespace Match3
             {
                 // Debug.Log($"<----- Destroying {finalObject?.GetValue()?.name}'s chain ----->");
                 destroyedGridObjects.AddRange(finalGemChain.Chain);
+                _ = finalGemChain.ManageChain(gridController);
             }
-            destroyedGridObjects = destroyedGridObjects.Distinct().ToList(); // Clear duplicates if any.
-            gridController.ClearGridObjects(destroyedGridObjects);
 
-            Dictionary<GridObject<BaseGem>, int> objectFallPair = gridController.GetObjectFallPair(destroyedGridObjects);
-            Dictionary<BaseGem, int> objectDelayPair = gridController.GetObjectDelayPair(destroyedGridObjects);
+            // destroyedGridObjects = destroyedGridObjects.Distinct().ToList(); // Clear duplicates if any.
+            // gridController.ClearGridObjects(destroyedGridObjects);
 
-            foreach (var pair in objectFallPair)
-            {
-                gridController.FallReassignment(pair.Key, pair.Value);
-            }
-            await gridController.AlignGridContents(objectDelayPair);
+            // Dictionary<GridObject<BaseGem>, int> objectFallPair = gridController.GetObjectFallPair(destroyedGridObjects);
+            // Dictionary<BaseGem, int> objectDelayPair = gridController.GetObjectDelayPair(destroyedGridObjects);
+
+            // foreach (var pair in objectFallPair)
+            // {
+            //     gridController.FallReassignment(pair.Key, pair.Value);
+            // }
+            // var newGems = gridController.CreateGemForNullGridObject(destroyedGridObjects);
+            // gridController.InsertToAnimationQueue(objectDelayPair, newGems);
+            // _ = gridController.AlignGridContents(objectDelayPair);
         }
     }
 }

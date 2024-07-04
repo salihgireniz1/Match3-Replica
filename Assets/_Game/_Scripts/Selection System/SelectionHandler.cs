@@ -48,31 +48,5 @@ namespace Match3
 
             gameStateMachine.ChangeState(gameStateMachine.Playing);
         }
-        // List<GridObject<BaseGem>> GetChain(GridObject<BaseGem> gridObject)
-        // {
-        //     List<GridObject<BaseGem>> visited = new List<GridObject<BaseGem>>();
-        //     return GetChainableNeighbors(gridObject, visited);
-        // }
-        // List<GridObject<BaseGem>> GetChainableNeighbors(GridObject<BaseGem> gridObject, List<GridObject<BaseGem>> visited)
-        // {
-        //     List<GridObject<BaseGem>> objectSpecificChain = new();
-
-        //     if (visited.Contains(gridObject))
-        //     {
-        //         return objectSpecificChain; // Return an empty list if already visited
-        //     }
-        //     visited.Add(gridObject); // Mark the current gridObject as visited
-        //     var gemNeighbors = grid.GetNeighbors2D(gridObject);
-        //     foreach (GridObject<BaseGem> neighbor in gemNeighbors)
-        //     {
-        //         if (gridObject.GetValue().GemType == neighbor.GetValue().GemType)
-        //         {
-        //             var neighborChain = GetChainableNeighbors(neighbor, visited);
-        //             objectSpecificChain.AddRange(neighborChain);
-        //         }
-        //     }
-        //     objectSpecificChain.Add(gridObject);
-        //     return objectSpecificChain;
-        // }
     }
 }

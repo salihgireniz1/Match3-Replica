@@ -2,6 +2,7 @@ using Zenject;
 using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace Match3
 {
@@ -11,7 +12,6 @@ namespace Match3
         public abstract int Priority { get; protected set; }
         public abstract bool HasChain(GridObject<BaseGem> gridObject);
         [Inject] GridSystem<GridObject<BaseGem>> gridSystem;
-        [Inject] IGridControls gridBehaviour;
         protected ChainBase(GridSystem<GridObject<BaseGem>> gridSystem, int priority = 0)
         {
             this.gridSystem = gridSystem;
@@ -55,6 +55,24 @@ namespace Match3
                 return true;
             }
             return false;
+        }
+        CancellationTokenSource cts = new();
+        public virtual UniTask ManageChain(IGridControls gridController)
+        {
+            cts?.Cancel();
+            cts = new();
+            gridController.ClearGridObjects(Chain);
+
+            Dictionary<GridObject<BaseGem>, int> objectFallPair = gridController.GetObjectFallPair(Chain);
+            Dictionary<BaseGem, int> objectDelayPair = gridController.GetObjectDelayPair(Chain);
+
+            foreach (var pair in objectFallPair)
+            {
+                gridController.FallReassignment(pair.Key, pair.Value);
+            }
+            var newGems = gridController.CreateGemForNullGridObject(Chain);
+            gridController.InsertToAnimationQueue(objectDelayPair, newGems);
+            return gridController.AlignGridContents(objectDelayPair);
         }
     }
 }
