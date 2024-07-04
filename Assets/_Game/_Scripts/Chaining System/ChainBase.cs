@@ -56,19 +56,5 @@ namespace Match3
             }
             return false;
         }
-        public UniTask DestroyChainObjects()
-        {
-            if (Chain == null || Chain.Count == 0) return UniTask.CompletedTask;
-            UniTaskCompletionSource utcs = new UniTaskCompletionSource();
-
-            foreach (GridObject<BaseGem> gridObject in Chain)
-            {
-                gridBehaviour.ClearGridObject(gridObject);
-            }
-            Chain.Clear();
-            utcs.TrySetResult();
-            return utcs.Task;
-        }
-
     }
 }

@@ -4,7 +4,7 @@ namespace Match3
     {
 
         GridSystem<GridObject<T>> grid;
-        int x, y;
+        public int x, y;
         private T gem;
 
         public GridObject(GridSystem<GridObject<T>> grid, int x, int y)

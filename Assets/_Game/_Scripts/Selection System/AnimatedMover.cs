@@ -24,12 +24,18 @@ namespace Match3
 
         public async UniTask FallGemMovement(BaseGem gem, Vector3 newPosition)
         {
-            await gem.transform.DOMoveY(newPosition.y, fallData.Duration).SetEase(fallData.Ease).ToUniTask();
+            var fallDistance = Vector3.Distance(gem.transform.position, newPosition);
+            await gem.transform.DOMoveY(newPosition.y, fallData.Duration * fallDistance).SetEase(fallData.Ease).ToUniTask();
+        }
+        public void PositionDirectly(BaseGem gem, Vector3 newPosition)
+        {
+            gem.transform.position = newPosition;
         }
     }
     public interface IGridMovement
     {
         UniTask SwipedGemMovement(GridObject<BaseGem> gemToMove, Vector3 movePos);
         UniTask FallGemMovement(BaseGem gem, Vector3 newPosition);
+        void PositionDirectly(BaseGem gem, Vector3 newPosition);
     }
 }

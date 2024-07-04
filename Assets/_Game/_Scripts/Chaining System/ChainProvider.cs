@@ -17,13 +17,13 @@ namespace Match3
             try
             {
                 var chainBase = ChainTypes.First(x => x.HasChain(gridObject));
-                Debug.Log($"{gridObject.GetValue().name} has {chainBase.GetType()} type chain!", gridObject.GetValue());
+                // Debug.Log($"{gridObject.GetValue().name} has {chainBase.GetType()} type chain!", gridObject.GetValue());
 
                 return chainBase;
             }
             catch
             {
-                Debug.Log($"{gridObject.GetValue().name} has no chain.", gridObject.GetValue());
+                // Debug.Log($"{gridObject.GetValue().name} has no chain.", gridObject.GetValue());
                 return null;
             }
 

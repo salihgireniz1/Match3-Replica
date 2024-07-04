@@ -16,7 +16,6 @@ namespace Match3
             // Seek for best chain matching
             ChainBase objectChain = ChainProvider.GetValidChain(obj);
             if (objectChain == null) return;
-            await objectChain.DestroyChainObjects();
         }
     }
 }

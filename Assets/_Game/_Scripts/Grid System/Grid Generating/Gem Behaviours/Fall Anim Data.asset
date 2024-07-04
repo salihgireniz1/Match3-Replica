@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: Fall Anim Data
   m_EditorClassIdentifier: Assembly-CSharp:Match3:FallAnimationData
-  <Duration>k__BackingField: 0.6
-  <Ease>k__BackingField: 20
+  <Duration>k__BackingField: 0.15
+  <Ease>k__BackingField: 2
