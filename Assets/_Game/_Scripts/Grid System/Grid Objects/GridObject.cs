@@ -2,7 +2,6 @@ namespace Match3
 {
     public class GridObject<T>
     {
-
         GridSystem<GridObject<T>> grid;
         public int x, y;
         private T gem;

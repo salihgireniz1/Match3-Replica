@@ -7,12 +7,12 @@ namespace Match3
     {
         [SerializeField] private Match3Data gridData;
 
-        [Inject] IGridControls gridGenerator;
+        [Inject] GridFiller gridFiller;
 
         private void Start()
         {
             // Create a grid.
-            gridGenerator.FillGrid();
+            gridFiller.FillGrid();
         }
     }
 }

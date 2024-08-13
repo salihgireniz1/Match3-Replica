@@ -28,15 +28,10 @@ namespace Match3
             var fallDistance = Vector3.Distance(gem.transform.position, newPosition);
             await gem.transform.DOMoveY(newPosition.y, fallData.Duration * fallDistance).SetEase(fallData.Ease).ToUniTask().AttachExternalCancellation(cts.Token);
         }
-        public void PositionDirectly(BaseGem gem, Vector3 newPosition)
-        {
-            gem.transform.position = newPosition;
-        }
     }
     public interface IGridMovement
     {
         UniTask SwipedGemMovement(GridObject<BaseGem> gemToMove, Vector3 movePos);
         UniTask FallGemMovement(BaseGem gem, Vector3 newPosition, CancellationTokenSource cts);
-        void PositionDirectly(BaseGem gem, Vector3 newPosition);
     }
 }

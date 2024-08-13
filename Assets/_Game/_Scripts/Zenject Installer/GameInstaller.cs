@@ -30,6 +30,8 @@ namespace Match3
             BindGridResponsibles();
             // Data Instances...
             BindDataInstances();
+            // Gem movers...
+            BindGemMovers();
         }
 
         void BindSelectionProcessResponsibles()
@@ -39,12 +41,18 @@ namespace Match3
         }
         void BindGridResponsibles()
         {
-            Container.Bind<IGemControls>().To<AnimatedGemController>().AsSingle();
+            Container.Bind<ISwipeGems>().To<SwipeWithTween>().AsSingle();
+
+            // Grid filler(instant filler, animated filler etc.)
+            Container.Bind<GridFiller>().To<InstantGridFiller>().AsSingle();
 
             Container.Bind<IGridControls>().To<InstantiateGridWithoutAnimation>().AsSingle();
 
             // Gem provider(i.e., pooling, instantiating etc.)
             Container.Bind<GemProvider<BaseGem>>().To<InstantiateGem>().AsSingle().NonLazy();
+
+            // Grid object controller(creates, contains and clears).
+            Container.Bind<GridObjectController>().AsSingle();
 
             // A vertical grid base.
             Container.Bind<GridSystem<GridObject<BaseGem>>>()
@@ -56,6 +64,11 @@ namespace Match3
             Container.Bind<Selection>().To<SingleSelection>().AsSingle().NonLazy();
             Container.Bind<Selection>().To<SimpleToSimpleSelection>().AsSingle().NonLazy();
             // TODO : Add other type of selections like simple to bomb etc.
+        }
+        void BindGemMovers()
+        {
+            Container.Bind<IGemMovement>().WithId(MoverType.Instant).To<InstantGemMover>().AsSingle();
+            Container.Bind<IGemMovement>().WithId(MoverType.Swipe).To<TweenForSwipe>().AsSingle();
         }
         void BindDataInstances()
         {
@@ -72,10 +85,10 @@ namespace Match3
         }
         void BindChainSeekingProcess()
         {
-            Container.Bind<ChainProvider>().AsSingle().NonLazy();
+            Container.Bind<ChainProvider>().AsSingle();
 
-            Container.Bind<ChainBase>().To<LinearPentaChain>().AsTransient().NonLazy();
-            Container.Bind<ChainBase>().To<LinearTripleChain>().AsTransient().NonLazy();
+            Container.Bind<ChainBase>().To<LinearPentaChain>().AsTransient();
+            Container.Bind<ChainBase>().To<LinearTripleChain>().AsTransient();
             // TODO: Add other type of chain seekers.
         }
     }

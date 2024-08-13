@@ -8,10 +8,12 @@ namespace Match3
 {
     public abstract class ChainBase
     {
+        [Inject] GridSystem<GridObject<BaseGem>> gridSystem;
+        [Inject] private GridObjectController gridObjectController;
+
         public abstract List<GridObject<BaseGem>> Chain { get; }
         public abstract int Priority { get; protected set; }
         public abstract bool HasChain(GridObject<BaseGem> gridObject);
-        [Inject] GridSystem<GridObject<BaseGem>> gridSystem;
         protected ChainBase(GridSystem<GridObject<BaseGem>> gridSystem, int priority = 0)
         {
             this.gridSystem = gridSystem;
@@ -61,7 +63,11 @@ namespace Match3
         {
             cts?.Cancel();
             cts = new();
-            gridController.ClearGridObjects(Chain);
+
+            for (int i = 0; i < Chain.Count; i++)
+            {
+                gridObjectController.ClearGridObject(Chain[i]);
+            }
 
             Dictionary<GridObject<BaseGem>, int> objectFallPair = gridController.GetObjectFallPair(Chain);
             Dictionary<BaseGem, int> objectDelayPair = gridController.GetObjectDelayPair(Chain);
